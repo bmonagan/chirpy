@@ -16,6 +16,13 @@ app.all('/healthz', (req, res) => {
   res.setHeader('Content-Type', 'text/plain');
   return res.status(200).send('OK');
 })
+app.all("/metrics", () => { 
+    console.log(`Hits: ${chirpyConfig.fileserverHits}`);
+})
+app.all("/reset", () => { 
+    chirpyConfig.fileserverHits = 0;
+})
+
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
