@@ -1,11 +1,15 @@
 import express from "express";
 import { Request, Response, NextFunction } from "express";
+import './config.js'
+import { chirpyConfig } from './config.js'
+
 
 const app = express();
 const PORT = 8080;
 
 app.use("/app", express.static("./src/app"));
 app.use(middlewareLogResponses);
+app.use(middlewareMetricsInc);
 
 app.all('/healthz', (req, res) => {
   console.log('Accessing the health check endpoint ...')
@@ -26,4 +30,11 @@ function middlewareLogResponses(req: Request, res: Response, next: NextFunction)
     }
   })
   next();
+}
+
+function middlewareMetricsInc(req: Request, res: Response, next: NextFunction) {
+    res.on("finish" , () => { 
+        chirpyConfig.fileserverHits += 1;
+    })
+    next();
 }
