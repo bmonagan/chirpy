@@ -2,4 +2,4 @@ type APIConfig = {
   fileserverHits: number;
 };
 
-let config:APIConfig = {fileserverHits:0};
+export let chirpyConfig: APIConfig = {fileserverHits:0};
