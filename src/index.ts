@@ -8,16 +8,16 @@ const PORT = 8080;
 app.use("/app", middlewareMetricsInc,express.static("./src/app"));
 app.use(middlewareLogResponses);
 
-app.all('/healthz', (req, res) => {
+app.all('/api/healthz', (req, res) => {
   console.log('Accessing the health check endpoint ...')
   res.setHeader('Content-Type', 'text/plain');
   return res.status(200).send('OK');
 })
-app.all("/metrics", (req,res) => {
+app.all("/api/metrics", (req,res) => {
     res.setHeader('Content-Type', 'text/plain');
     return res.send(`Hits: ${chirpyConfig.fileserverHits}`);
 })
-app.all("/reset", (req,res) => { 
+app.all("/api/reset", (req,res) => { 
     chirpyConfig.fileserverHits = 0;
     return res.status(200).send('OK');
 })
