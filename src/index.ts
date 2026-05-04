@@ -13,9 +13,15 @@ app.all('/api/healthz', (req, res) => {
   res.setHeader('Content-Type', 'text/plain');
   return res.status(200).send('OK');
 })
-app.all("/api/metrics", (req,res) => {
-    res.setHeader('Content-Type', 'text/plain');
-    return res.send(`Hits: ${chirpyConfig.fileserverHits}`);
+
+app.all("/admin/metrics", (req,res) => {
+    res.setHeader('Content-Type', "text/html; charset=utf-8");
+    return res.send(`<html>
+  <body>
+    <h1>Welcome, Chirpy Admin</h1>
+    <p>Chirpy has been visited ${chirpyConfig.fileserverHits} times!</p>
+  </body>
+</html>`);
 })
 app.all("/api/reset", (req,res) => { 
     chirpyConfig.fileserverHits = 0;
