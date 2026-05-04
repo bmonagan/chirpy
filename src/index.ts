@@ -5,7 +5,7 @@ const app = express();
 const PORT = 8080;
 
 app.use("/app", express.static("./src/app"));
-app.use(middlewareLogResponse);
+app.use(middlewareLogResponses);
 
 app.all('/healthz', (req, res) => {
   console.log('Accessing the health check endpoint ...')
@@ -17,7 +17,7 @@ app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
 
-function middlewareLogResponse(req: Request, res: Response, next: NextFunction) {
+function middlewareLogResponses(req: Request, res: Response, next: NextFunction) {
   res.on("finish", () => {
     const status = res.statusCode;
     if (status >= 400) {
