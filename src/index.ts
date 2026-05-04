@@ -23,7 +23,7 @@ app.all("/admin/metrics", (req,res) => {
   </body>
 </html>`);
 })
-app.all("/admin/reset", (req,res) => { 
+app.post("/admin/reset", (req,res) => { 
     chirpyConfig.fileserverHits = 0;
     return res.status(200).send('OK');
 })
