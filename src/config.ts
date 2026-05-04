@@ -1,0 +1,3 @@
+type APIConfig = {
+  fileserverHits: number;
+};
