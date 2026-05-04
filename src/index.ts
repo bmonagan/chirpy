@@ -16,11 +16,13 @@ app.all('/healthz', (req, res) => {
   res.setHeader('Content-Type', 'text/plain');
   return res.status(200).send('OK');
 })
-app.all("/metrics", () => { 
-    console.log(`Hits: ${chirpyConfig.fileserverHits}`);
+app.all("/metrics", (req,res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    return res.send(`Hits: ${chirpyConfig.fileserverHits}`);
 })
-app.all("/reset", () => { 
+app.all("/reset", (req,res) => { 
     chirpyConfig.fileserverHits = 0;
+    return res.status(200).send('OK');
 })
 
 
