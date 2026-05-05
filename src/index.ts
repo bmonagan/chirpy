@@ -31,7 +31,8 @@ app.post("/admin/reset", (req,res) => {
     return res.status(200).send('OK');
 })
 
-
+// Error handler should be the last thing before server running.
+app.use(errorHandler);
 // Final step for the server to be running.
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
@@ -76,7 +77,7 @@ function errorHandler(
 ) {
   console.error("Error occured");
   res.status(500).json({
-    error: "Boots has fallen",
+    error: "Something went wrong on our end.",
   });
 }
 
