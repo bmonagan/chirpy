@@ -2,6 +2,7 @@ import express from "express";
 import e, { Request, Response, NextFunction } from "express";
 import { chirpyConfig } from './config.js'
 import { filterProfanity, BodyClean } from "./profanity_filter.js";
+import { BadRequestError, UnauthorizedError, ForbiddenError, NotFoundError, MethodNotAllowedError, ConflictError, UnprocessableEntityError, InternalServerError } from './error_classes.js';
 
 const app = express();
 const PORT = 8080;
@@ -72,13 +73,15 @@ async function validateChirp(req: Request, res: Response, next: NextFunction) {
 }
 
 function errorHandler(
-  err: Error,
+  err: Error & { statusCode?: number },
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
   console.error("Error occured");
-  res.status(500).json({
-    error: "Something went wrong on our end",
+  const statusCode = err.statusCode ?? 500;
+  const message = statusCode < 500 ? err.message : "Something went wrong on our end";
+  res.status(statusCode).json({
+    error: message,
   });
 }
