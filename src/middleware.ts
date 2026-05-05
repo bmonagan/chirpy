@@ -25,7 +25,7 @@ export async function validateChirp(req: Request, res: Response, next: NextFunct
   try {
     const parsedBody = req.body.body;
     if (parsedBody.length > 140) {
-      throw Error
+      throw new BadRequestError("Chirp is too long")
     }
     const bodyClean: BodyClean = filterProfanity(parsedBody);
     return res.status(200).send({ "cleanedBody": bodyClean.body });
@@ -35,15 +35,37 @@ export async function validateChirp(req: Request, res: Response, next: NextFunct
 }
 
 export function errorHandler(
-  err: Error & { statusCode?: number },
+  err: Error,
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
   console.error("Error occured");
-  const statusCode = err.statusCode ?? 500;
-  const message = statusCode < 500 ? err.message : "Something went wrong on our end";
-  res.status(statusCode).json({
-    error: message,
-  });
+
+  if (err instanceof BadRequestError) {
+    return res.status(400).json({ error: err.message });
+  }
+  if (err instanceof UnauthorizedError) {
+    return res.status(401).json({ error: err.message });
+  }
+  if (err instanceof ForbiddenError) {
+    return res.status(403).json({ error: err.message });
+  }
+  if (err instanceof NotFoundError) {
+    return res.status(404).json({ error: err.message });
+  }
+  if (err instanceof MethodNotAllowedError) {
+    return res.status(405).json({ error: err.message });
+  }
+  if (err instanceof ConflictError) {
+    return res.status(409).json({ error: err.message });
+  }
+  if (err instanceof UnprocessableEntityError) {
+    return res.status(422).json({ error: err.message });
+  }
+  if (err instanceof InternalServerError) {
+    return res.status(500).json({ error: "Something went wrong on our end" });
+  }
+
+  return res.status(500).json({ error: "Something went wrong on our end" });
 }
