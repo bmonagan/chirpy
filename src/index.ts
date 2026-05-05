@@ -31,6 +31,8 @@ app.post("/admin/reset", (req,res) => {
     return res.status(200).send('OK');
 })
 
+
+// Final step for the server to be running.
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
@@ -65,3 +67,17 @@ async function validateChirp(req: Request, res: Response) {
     return res.status(400).send({ "error": "Invalid JSON" });
   }
 }
+
+function errorHandler(
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  console.error("Error occured");
+  res.status(500).json({
+    error: "Boots has fallen",
+  });
+}
+
+app.use(errorHandler);
