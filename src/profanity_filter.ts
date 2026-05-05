@@ -1,4 +1,4 @@
-type BodyClean = {
+export type BodyClean = {
     wasCleaned: boolean,
     body: string
 }
