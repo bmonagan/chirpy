@@ -1,6 +1,7 @@
 import express from "express";
-import { Request, Response, NextFunction } from "express";
+import e, { Request, Response, NextFunction } from "express";
 import { chirpyConfig } from './config.js'
+import { filterProfanity, BodyClean } from "./profanity_filter.js";
 
 const app = express();
 const PORT = 8080;
@@ -56,10 +57,12 @@ async function validateChirp(req: Request, res: Response) {
   req.on("end", () => {
     try {
       const parsedBody = req.body.body;
-      if (parsedBody.body.length > 140) { 
+      if (parsedBody.length > 140) { 
         return res.status(400).send({"error": "Chirp is too long" });
       }
-      return res.status(200).send({"valid": true})
+      const bodyClean: BodyClean = filterProfanity(parsedBody);
+      const bodyMessage = bodyClean.wasCleaned ? "cleanedBody" : "body";
+      return res.status(200).send({[bodyMessage]: bodyClean.body});
     } catch (error) {
       return res.status(400).send({"error": "Invalid JSON" });
     }
