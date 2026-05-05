@@ -80,5 +80,3 @@ function errorHandler(
     error: "Something went wrong on our end",
   });
 }
-
-app.use(errorHandler);
