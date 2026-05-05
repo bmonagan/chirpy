@@ -1,3 +1,7 @@
+import { Request, Response, NextFunction } from "express";
+import { chirpyConfig } from "./config.js";
+import { filterProfanity, BodyClean } from "./profanity_filter.js";
+
 export function middlewareLogResponses(req: Request, res: Response, next: NextFunction) {
   res.on("finish", () => {
     const status = res.statusCode;
