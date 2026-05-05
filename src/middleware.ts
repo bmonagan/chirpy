@@ -25,7 +25,7 @@ export async function validateChirp(req: Request, res: Response, next: NextFunct
   try {
     const parsedBody = req.body.body;
     if (parsedBody.length > 140) {
-      throw new BadRequestError("Chirp is too long")
+      throw new BadRequestError("Chirp is too long. Max length is 140")
     }
     const bodyClean: BodyClean = filterProfanity(parsedBody);
     return res.status(200).send({ "cleanedBody": bodyClean.body });
