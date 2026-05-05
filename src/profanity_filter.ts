@@ -3,7 +3,7 @@ type BodyClean = {
     body: string
 }
 const filtered = "****";
-function filterProfanity(chirp:string): BodyClean {
+export function filterProfanity(chirp:string): BodyClean {
     let wasCleaned = false;
     let words = chirp.split(" ");
     const filterWords = ["kerfuffle", "sharbert", "fornax"];
