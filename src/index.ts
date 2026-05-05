@@ -56,16 +56,16 @@ function middlewareMetricsInc(req: Request, res: Response, next: NextFunction) {
     next();
 }
 
-async function validateChirp(req: Request, res: Response) {
+async function validateChirp(req: Request, res: Response, next: NextFunction) {
   try {
     const parsedBody = req.body.body;
     if (parsedBody.length > 140) {
-      return res.status(400).send({ "error": "Chirp is too long" });
+      throw Error
     }
     const bodyClean: BodyClean = filterProfanity(parsedBody);
     return res.status(200).send({ "cleanedBody": bodyClean.body });
-  } catch (error) {
-    return res.status(400).send({ "error": "Invalid JSON" });
+  } catch (err) {
+    next(err);
   }
 }
 
@@ -77,7 +77,7 @@ function errorHandler(
 ) {
   console.error("Error occured");
   res.status(500).json({
-    error: "Something went wrong on our end.",
+    error: "Something went wrong on our end",
   });
 }
 
