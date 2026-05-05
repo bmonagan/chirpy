@@ -60,8 +60,7 @@ async function validateChirp(req: Request, res: Response) {
       return res.status(400).send({ "error": "Chirp is too long" });
     }
     const bodyClean: BodyClean = filterProfanity(parsedBody);
-    const bodyMessage = bodyClean.wasCleaned ? "cleanedBody" : "body";
-    return res.status(200).send({ [bodyMessage]: bodyClean.body });
+    return res.status(200).send({ "cleanedBody": bodyClean.body });
   } catch (error) {
     return res.status(400).send({ "error": "Invalid JSON" });
   }
