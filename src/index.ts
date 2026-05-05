@@ -6,6 +6,7 @@ const app = express();
 const PORT = 8080;
 
 app.use("/app", middlewareMetricsInc,express.static("./src/app"));
+app.use(express.json());
 app.use(middlewareLogResponses);
 app.post("/api/validate_chirp", validateChirp);
 
@@ -52,14 +53,9 @@ function middlewareMetricsInc(req: Request, res: Response, next: NextFunction) {
 }
 
 async function validateChirp(req: Request, res: Response) {
-  let body = ""; 
-
-  req.on("data", (chunk) => {
-    body += chunk;
-  });
   req.on("end", () => {
     try {
-      const parsedBody = JSON.parse(body);
+      const parsedBody = req.body.body;
       if (parsedBody.body.length > 140) { 
         return res.status(400).send({"error": "Chirp is too long" });
       }
