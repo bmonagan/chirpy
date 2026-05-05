@@ -9,7 +9,9 @@ const PORT = 8080;
 app.use("/app", middlewareMetricsInc,express.static("./src/app"));
 app.use(express.json());
 app.use(middlewareLogResponses);
-app.post("/api/validate_chirp", validateChirp);
+app.post("/api/validate_chirp", (req, res, next) => {
+  Promise.resolve(validateChirp(req, res,next)).catch(next);
+});
 
 app.all('/api/healthz', (req, res) => {
   console.log('Accessing the health check endpoint ...')
