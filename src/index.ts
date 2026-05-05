@@ -7,6 +7,7 @@ const PORT = 8080;
 
 app.use("/app", middlewareMetricsInc,express.static("./src/app"));
 app.use(middlewareLogResponses);
+app.post("/api/validate_chirp", validateChirp);
 
 app.all('/api/healthz', (req, res) => {
   console.log('Accessing the health check endpoint ...')
@@ -48,4 +49,20 @@ function middlewareMetricsInc(req: Request, res: Response, next: NextFunction) {
         chirpyConfig.fileserverHits += 1;
     })
     next();
+}
+
+async function validateChirp(req: Request, res: Response) {
+  let body = ""; 
+
+  req.on("data", (chunk) => {
+    body += chunk;
+  });
+  req.on("end", () => {
+    try {
+      const parsedBody = JSON.parse(body);
+      res.status(200).send({"valid": true})
+    } catch (error) {
+      res.status(400).send("Invalid JSON");
+    }
+  });
 }
