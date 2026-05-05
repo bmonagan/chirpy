@@ -60,12 +60,12 @@ async function validateChirp(req: Request, res: Response) {
   req.on("end", () => {
     try {
       const parsedBody = JSON.parse(body);
-      if (parsedBody.length > 140) { 
-        return res.status(400).send("Chirp is too long.");
+      if (parsedBody.body.length > 140) { 
+        return res.status(400).send({"error": "Chirp is too long" });
       }
       return res.status(200).send({"valid": true})
     } catch (error) {
-      return res.status(400).send("Invalid JSON");
+      return res.status(400).send({"error": "Invalid JSON" });
     }
   });
 }
