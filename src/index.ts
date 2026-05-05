@@ -54,17 +54,15 @@ function middlewareMetricsInc(req: Request, res: Response, next: NextFunction) {
 }
 
 async function validateChirp(req: Request, res: Response) {
-  req.on("end", () => {
-    try {
-      const parsedBody = req.body.body;
-      if (parsedBody.length > 140) { 
-        return res.status(400).send({"error": "Chirp is too long" });
-      }
-      const bodyClean: BodyClean = filterProfanity(parsedBody);
-      const bodyMessage = bodyClean.wasCleaned ? "cleanedBody" : "body";
-      return res.status(200).send({[bodyMessage]: bodyClean.body});
-    } catch (error) {
-      return res.status(400).send({"error": "Invalid JSON" });
+  try {
+    const parsedBody = req.body.body;
+    if (parsedBody.length > 140) {
+      return res.status(400).send({ "error": "Chirp is too long" });
     }
-  });
+    const bodyClean: BodyClean = filterProfanity(parsedBody);
+    const bodyMessage = bodyClean.wasCleaned ? "cleanedBody" : "body";
+    return res.status(200).send({ [bodyMessage]: bodyClean.body });
+  } catch (error) {
+    return res.status(400).send({ "error": "Invalid JSON" });
+  }
 }
