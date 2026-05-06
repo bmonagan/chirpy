@@ -4,7 +4,7 @@ import {middlewareLogResponses, middlewareMetricsInc, errorHandler, validateChir
 import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { createUser } from "./lib/db/queries/users.js";
+import { createUser, resetUsers } from "./lib/db/queries/users.js";
 import { BadRequestError, ConflictError } from "./error_classes.js";
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
@@ -50,9 +50,12 @@ app.all("/admin/metrics", (req,res) => {
   </body>
 </html>`);
 })
-app.post("/admin/reset", (req,res) => { 
+app.post("/admin/reset", (req,res,next) => {
+  Promise.resolve((async () => {
     chirpyConfig.apiConfig.fileServerHits = 0;
+    await resetUsers();
     return res.status(200).send('OK');
+  })()).catch(next)
 })
 
 // Error handler should be the last thing before server running.
