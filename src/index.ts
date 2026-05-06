@@ -28,7 +28,7 @@ app.get("/api/chirps", (req,res,next) => {
     return res.status(200).json(chirps);
   })()).catch(next)
 });
-  app.post("/api/users" ,(req,res,next) => {
+app.post("/api/users" ,(req,res,next) => {
   Promise.resolve((async () => {
     const email = req.body?.email;
     const password = req.body?.password;
