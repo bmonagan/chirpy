@@ -24,6 +24,12 @@ export function middlewareMetricsInc(req: Request, res: Response, next: NextFunc
 
 export async function validateChirp(req: Request, res: Response, next: NextFunction) {
   try {
+    if (!req.body.body || typeof req.body.body !== "string") {
+      throw new BadRequestError("Request body must have a 'body' field of type string");
+    }
+    if (!req.body.userId || typeof req.body.userId !== "string") {
+      throw new UnauthorizedError("User must be authenticated to post a chirp");
+    }
     const parsedBody = req.body.body;
     if (parsedBody.length > 140) {
       throw new BadRequestError("Chirp is too long. Max length is 140")
