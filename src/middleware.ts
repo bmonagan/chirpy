@@ -3,6 +3,7 @@ import { chirpyConfig } from "./config.js";
 import { filterProfanity, BodyClean } from "./profanity_filter.js";
 import { BadRequestError, UnauthorizedError, ForbiddenError, NotFoundError, MethodNotAllowedError, ConflictError, UnprocessableEntityError, InternalServerError } from './error_classes.js';
 import { NewChirp } from "./schema.js";
+import { createChirp } from "./lib/db/queries/chirps.js";
 
 export function middlewareLogResponses(req: Request, res: Response, next: NextFunction) {
   res.on("finish", () => {
@@ -35,7 +36,12 @@ export async function validateChirp(req: Request, res: Response, next: NextFunct
       throw new BadRequestError("Chirp is too long. Max length is 140")
     }
     const bodyClean: BodyClean = filterProfanity(parsedBody);
-    return res.status(200).send({ "cleanedBody": bodyClean.body });
+    const newChirp: NewChirp = {
+      body: bodyClean.body,
+      userId: req.body.userId,
+    };
+    const createdChirp = await createChirp(newChirp);
+    return res.status(201).json(createdChirp);
   } catch (err) {
     next(err);
   }
