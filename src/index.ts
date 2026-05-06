@@ -1,8 +1,12 @@
 import express from "express";
-import e, { Request, Response, NextFunction } from "express";
 import { chirpyConfig } from './config.js'
-import { filterProfanity, BodyClean } from "./profanity_filter.js";
 import {middlewareLogResponses, middlewareMetricsInc, errorHandler, validateChirp } from './middleware.js'
+import postgres from "postgres";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { drizzle } from "drizzle-orm/postgres-js";
+
+const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
+await migrate(drizzle(migrationClient), chirpyConfig.dbConfig.migrationConfig);
 
 const app = express();
 const PORT = 8080;
@@ -25,12 +29,12 @@ app.all("/admin/metrics", (req,res) => {
     return res.send(`<html>
   <body>
     <h1>Welcome, Chirpy Admin</h1>
-    <p>Chirpy has been visited ${chirpyConfig.fileserverHits} times!</p>
+    <p>Chirpy has been visited ${chirpyConfig.apiConfig.fileServerHits} times!</p>
   </body>
 </html>`);
 })
 app.post("/admin/reset", (req,res) => { 
-    chirpyConfig.fileserverHits = 0;
+    chirpyConfig.apiConfig.fileServerHits = 0;
     return res.status(200).send('OK');
 })
 
