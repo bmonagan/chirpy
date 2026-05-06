@@ -1,4 +1,31 @@
+import { MigrationConfig } from "drizzle-orm/migrator";
+import { migrationConfig } from "./lib/db/migrations/migrationConfig.js";
+
 process.loadEnvFile()
+
+type DBConfig  = {
+  url: String;
+  migrationConfig: MigrationConfig;
+}
+type APIConfig = {
+  fileServerHits: number;
+};
+type Config = {
+  apiConfig: APIConfig;
+  dbConfig: DBConfig;
+}
+
+let dbConfig:DBConfig = {
+  url: envOrThrow("DB_URL"),
+  migrationConfig: migrationConfig
+}
+let apiConfig: APIConfig = {
+  fileServerHits: 0
+}
+export let chirpyConfig: Config = {
+  dbConfig: dbConfig,
+  apiConfig: apiConfig
+};
 
 function envOrThrow(key: string): string {
   const value = process.env[key];
@@ -7,14 +34,3 @@ function envOrThrow(key: string): string {
   }
   return value;
 }
-
-type APIConfig = {
-  fileServerHits: number;
-  dbURL: string;
-};
-
-export let chirpyConfig: APIConfig = {
-  fileServerHits: 0,
-  dbURL: envOrThrow("DB_URL"),
-};
-
