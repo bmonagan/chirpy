@@ -5,7 +5,8 @@ import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { createUser, resetUsers } from "./lib/db/queries/users.js";
-import { BadRequestError, ConflictError } from "./error_classes.js";
+import { BadRequestError, ConflictError, ForbiddenError } from "./error_classes.js";
+import { config } from "node:process";
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
 await migrate(drizzle(migrationClient), chirpyConfig.dbConfig.migrationConfig);
@@ -53,6 +54,9 @@ app.all("/admin/metrics", (req,res) => {
 app.post("/admin/reset", (req,res,next) => {
   Promise.resolve((async () => {
     chirpyConfig.apiConfig.fileServerHits = 0;
+    if (chirpyConfig.apiConfig.platform !== "dev") {
+      throw new ForbiddenError("Reset is only allowed in dev environment");
+    }
     await resetUsers();
     return res.status(200).send('OK');
   })()).catch(next)
