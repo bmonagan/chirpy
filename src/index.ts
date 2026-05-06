@@ -6,6 +6,7 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { createUser, resetUsers } from "./lib/db/queries/users.js";
 import { BadRequestError, ConflictError, ForbiddenError } from "./error_classes.js";
+import { getChirps } from "./lib/db/queries/chirps.js";
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
 await migrate(drizzle(migrationClient), chirpyConfig.dbConfig.migrationConfig);
@@ -19,7 +20,14 @@ app.use(middlewareLogResponses);
 app.post("/api/chirps", (req, res, next) => {
   Promise.resolve(validateChirp(req, res,next)).catch(next);
 });
-app.post("/api/users" ,(req,res,next) => {
+
+app.get("/api/chirps", (req,res,next) => {
+  Promise.resolve((async () => {
+    const chirps = await getChirps();
+    return res.json(chirps);
+  })()).catch(next)
+});
+  app.post("/api/users" ,(req,res,next) => {
   Promise.resolve((async () => {
     const email = req.body?.email;
     if (typeof email !== "string" || email.trim().length === 0) {
