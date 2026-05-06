@@ -24,7 +24,7 @@ app.post("/api/chirps", (req, res, next) => {
 app.get("/api/chirps", (req,res,next) => {
   Promise.resolve((async () => {
     const chirps = await getChirps();
-    return res.json(chirps);
+    return res.status(200).json(chirps);
   })()).catch(next)
 });
   app.post("/api/users" ,(req,res,next) => {
