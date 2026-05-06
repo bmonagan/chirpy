@@ -16,7 +16,7 @@ export function middlewareLogResponses(req: Request, res: Response, next: NextFu
 
 export function middlewareMetricsInc(req: Request, res: Response, next: NextFunction) {
     res.on("finish" , () => { 
-        chirpyConfig.fileserverHits += 1;
+    chirpyConfig.apiConfig.fileServerHits += 1;
     })
     next();
 }
