@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { chirpyConfig } from "./config.js";
 import { filterProfanity, BodyClean } from "./profanity_filter.js";
 import { BadRequestError, UnauthorizedError, ForbiddenError, NotFoundError, MethodNotAllowedError, ConflictError, UnprocessableEntityError, InternalServerError } from './error_classes.js';
+import { NewChirp } from "./schema.js";
 
 export function middlewareLogResponses(req: Request, res: Response, next: NextFunction) {
   res.on("finish", () => {
