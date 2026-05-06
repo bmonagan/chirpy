@@ -17,7 +17,7 @@ const PORT = 8080;
 app.use("/app", middlewareMetricsInc,express.static("./src/app"));
 app.use(express.json());
 app.use(middlewareLogResponses);
-app.post("/api/validate_chirp", (req, res, next) => {
+app.post("/api/chirps", (req, res, next) => {
   Promise.resolve(validateChirp(req, res,next)).catch(next);
 });
 app.post("/api/users" ,(req,res,next) => {
