@@ -4,7 +4,7 @@ import { migrationConfig } from "./lib/db/migrations/migrationConfig.js";
 process.loadEnvFile()
 
 type DBConfig  = {
-  url: String;
+  url: string;
   migrationConfig: MigrationConfig;
 }
 type APIConfig = {
