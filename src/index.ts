@@ -4,6 +4,8 @@ import {middlewareLogResponses, middlewareMetricsInc, errorHandler, validateChir
 import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
+import { createUser } from "./lib/db/queries/users.js";
+import { BadRequestError, ConflictError } from "./error_classes.js";
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
 await migrate(drizzle(migrationClient), chirpyConfig.dbConfig.migrationConfig);
@@ -16,6 +18,21 @@ app.use(express.json());
 app.use(middlewareLogResponses);
 app.post("/api/validate_chirp", (req, res, next) => {
   Promise.resolve(validateChirp(req, res,next)).catch(next);
+});
+app.post("/api/users" ,(req,res,next) => {
+  Promise.resolve((async () => {
+    const email = req.body?.email;
+    if (typeof email !== "string" || email.trim().length === 0) {
+      throw new BadRequestError("Email is required");
+    }
+
+    const newUser = await createUser({ email: email.trim() });
+    if (!newUser) {
+      throw new ConflictError("User with this email already exists");
+    }
+
+    return res.status(201).json(newUser);
+  })()).catch(next)
 });
 
 app.all('/api/healthz', (req, res) => {
