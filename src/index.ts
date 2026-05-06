@@ -6,7 +6,7 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { createUser, resetUsers } from "./lib/db/queries/users.js";
 import { BadRequestError, ConflictError, ForbiddenError } from "./error_classes.js";
-import { getChirps } from "./lib/db/queries/chirps.js";
+import { getChirpById, getChirps } from "./lib/db/queries/chirps.js";
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
 await migrate(drizzle(migrationClient), chirpyConfig.dbConfig.migrationConfig);
@@ -42,12 +42,24 @@ app.get("/api/chirps", (req,res,next) => {
     return res.status(201).json(newUser);
   })()).catch(next)
 });
-
+app.get("/api/chirps/:chirpId", (req,res,next) => {
+  Promise.resolve((async () => {
+    const chirpId = req.params.chirpId;
+    if (!chirpId) {
+      throw new BadRequestError("Invalid chirp ID");
+    }
+    const chirp = await getChirpById(chirpId);
+    if (!chirp) {
+      return res.status(404).json({ message: "Chirp not found" });
+    }
+    return res.status(200).json(chirp);
+  })()).catch(next)
+});
 app.all('/api/healthz', (req, res) => {
   console.log('Accessing the health check endpoint ...')
   res.setHeader('Content-Type', 'text/plain');
   return res.status(200).send('OK');
-})
+});
 
 app.all("/admin/metrics", (req,res) => {
     res.setHeader('Content-Type', "text/html; charset=utf-8");
