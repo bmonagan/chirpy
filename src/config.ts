@@ -9,6 +9,7 @@ type DBConfig  = {
 }
 type APIConfig = {
   fileServerHits: number;
+  platform: string;
 };
 type Config = {
   apiConfig: APIConfig;
@@ -20,7 +21,8 @@ let dbConfig:DBConfig = {
   migrationConfig: migrationConfig
 }
 let apiConfig: APIConfig = {
-  fileServerHits: 0
+  fileServerHits: 0,
+  platform: envOrThrow("PLATFORM")
 }
 export let chirpyConfig: Config = {
   dbConfig: dbConfig,
