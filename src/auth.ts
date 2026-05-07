@@ -24,3 +24,15 @@ export function validateJWT(token: string, secret: string): payload {
     throw new Error("Invalid token");
   }
 }
+
+export function getBearerToken(req: Request): string {
+  const authorizationHeader = req.headers.get("Authorization");
+  if (!authorizationHeader) {
+    throw new Error("Authorization header missing");
+  }
+  const [scheme, token] = authorizationHeader.split(" ");
+  if (scheme !== "Bearer") {
+    throw new Error("Invalid authorization scheme");
+  }
+  return token;
+}
