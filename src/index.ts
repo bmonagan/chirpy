@@ -1,4 +1,4 @@
-import express from "express";
+import express, { application } from "express";
 import { chirpyConfig } from './config.js'
 import {middlewareLogResponses, middlewareMetricsInc, errorHandler, validateChirp, asyncHandler } from './middleware.js'
 import postgres from "postgres";
@@ -9,7 +9,8 @@ import { BadRequestError, ConflictError, ForbiddenError } from "./error_classes.
 import { getChirpById, getChirps } from "./lib/db/queries/chirps.js";
 import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken } from "./auth.js";
 import { getUserByEmail } from "./lib/db/queries/users.js";
-import { createRefreshToken,validateRefreshToken,getUserIdFromRefreshToken } from "./lib/db/queries/refreshTokens.js";
+import { createRefreshToken,validateRefreshToken,getUserIdFromRefreshToken, revokeRefreshToken } from "./lib/db/queries/refreshTokens.js";
+import { get } from "node:http";
 
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
@@ -136,16 +137,22 @@ app.post("/api/refresh", asyncHandler(async (req,res) => {
   if (typeof refreshToken !== "string" || refreshToken.trim().length === 0) {
     return res.status(401).json({ message: "Refresh token is required" });
   }
-  const tokenRecord = await validateRefreshToken(refreshToken);
+  const userId = await getUserIdFromRefreshToken(refreshToken);
   return res.status(200).json({
-    token: makeJWT(tokenRecord.userId, 3600, chirpyConfig.JWTSecret)
+    token: makeJWT(userId, 3600, chirpyConfig.JWTSecret)
   });
 }))
-
+app.post("/api/revoke", asyncHandler(async (req,res) => {
+  const refreshToken = req.body?.refreshToken;
+  if (typeof refreshToken !== "string" || refreshToken.trim().length === 0) {
+    return res.status(401).json({ message: "Refresh token is required" });
+  }
+  await revokeRefreshToken(refreshToken);
+  return res.status(200).json({ message: "Refresh token revoked successfully" });
+}));
 // Error handler should be the last thing before server running.
 app.use(errorHandler);
 // Final step for the server to be running.
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
-
