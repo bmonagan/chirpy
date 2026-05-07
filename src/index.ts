@@ -7,8 +7,9 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { createUser, resetUsers } from "./lib/db/queries/users.js";
 import { BadRequestError, ConflictError, ForbiddenError } from "./error_classes.js";
 import { getChirpById, getChirps } from "./lib/db/queries/chirps.js";
-import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken } from "./auth.js";
+import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken } from "./auth.js";
 import { getUserByEmail } from "./lib/db/queries/users.js";
+
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
 await migrate(drizzle(migrationClient), chirpyConfig.dbConfig.migrationConfig);
@@ -88,7 +89,8 @@ app.post("/api/login", asyncHandler(async (req, res) => {
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     email: user.email,
-    token: makeJWT(user.id, expiresInSeconds, chirpyConfig.JWTSecret)  
+    token: makeJWT(user.id, expiresInSeconds, chirpyConfig.JWTSecret),
+    refreshToken: makeRefreshToken()
   });
 }));
 
