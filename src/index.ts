@@ -43,8 +43,11 @@ app.post("/api/users" ,(req,res,next) => {
     if (typeof token !== "string" || token.trim().length === 0) {
       throw new BadRequestError("Token is required");
     }
-    const bearerToken = getBearerToken(req: Request);
+    const bearerToken = getBearerToken(req);
     const payload = validateJWT(bearerToken, chirpyConfig.JWTSecret);
+    if (!payload || !payload.sub) {
+      throw new ForbiddenError("Invalid token");
+    }
 
     const hashedPassword = await hashPassword(password);
     const newUser = await createUser({ email: email.trim(), hashedPassword: hashedPassword });
