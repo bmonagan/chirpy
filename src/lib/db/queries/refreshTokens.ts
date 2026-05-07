@@ -39,3 +39,9 @@ export async function getUserIdFromRefreshToken(token: string): Promise<string> 
     const tokenRecord = await validateRefreshToken(token);
     return tokenRecord.userId;
 }
+
+export async function revokeRefreshToken(token: string): Promise<void> {
+    await db.update(refreshTokens)
+    .set({ revokedAt: new Date() })
+    .where(eq(refreshTokens.token, token));
+}
