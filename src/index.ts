@@ -7,7 +7,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { createUser, resetUsers } from "./lib/db/queries/users.js";
 import { BadRequestError, ConflictError, ForbiddenError } from "./error_classes.js";
 import { getChirpById, getChirps } from "./lib/db/queries/chirps.js";
-import { hashPassword } from "./auth.js";
+import { hashPassword,checkPasswordHash } from "./auth.js";
 import { getUserByEmail } from "./lib/db/queries/users.js";
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
@@ -63,6 +63,13 @@ app.post("/api/login", (req,res,next) => {
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
+    const isPasswordValid = await checkPasswordHash(password, user.hashed_password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "User not Found" });
+    }
+    return res.status(200).json({userId: user.id, createdAt: user.createdAt, updatedAt: user.updatedAt, email: user.email});
+  })()).catch(next)
+});
 
     app.get("/api/chirps/:chirpId", (req,res,next) => {
   Promise.resolve((async () => {
