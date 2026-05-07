@@ -71,19 +71,19 @@ app.post("/api/login", (req,res,next) => {
   })()).catch(next)
 });
 
-    app.get("/api/chirps/:chirpId", (req,res,next) => {
+app.get("/api/chirps/:chirpId", (req,res,next) => {
   Promise.resolve((async () => {
-    const chirpId = req.params.chirpId;
-    if (!chirpId) {
-      throw new BadRequestError("Invalid chirp ID");
-    }
-    const chirp = await getChirpById(chirpId);
-    if (!chirp) {
-      return res.status(404).json({ message: "Chirp not found" });
-    }
-    return res.status(200).json(chirp);
+  const chirpId = req.params.chirpId;
+  if (!chirpId) {
+    throw new BadRequestError("Invalid chirp ID");
+  }
+  const chirp = await getChirpById(chirpId);
+  if (!chirp) {
+    return res.status(404).json({ message: "Chirp not found" });
+  }
+  return res.status(200).json(chirp);
   })()).catch(next)
-});
+  });
 app.all('/api/healthz', (req, res) => {
   console.log('Accessing the health check endpoint ...')
   res.setHeader('Content-Type', 'text/plain');
