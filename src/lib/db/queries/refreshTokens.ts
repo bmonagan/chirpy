@@ -34,3 +34,8 @@ export async function validateRefreshToken(token: string) {
     }
     return tokenRecord;
 }
+
+export async function getUserIdFromRefreshToken(token: string): Promise<string> {
+    const tokenRecord = await validateRefreshToken(token);
+    return tokenRecord.userId;
+}
