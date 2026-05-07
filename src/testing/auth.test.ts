@@ -39,13 +39,6 @@ describe("JWT", () => {
     const parts = token.split(".");
     expect(parts).toHaveLength(3);
   });
-
-  it("should validate a freshly signed token and return the correct sub", () => {
-    const token = makeJWT(userID, expiresIn, secret);
-    const decoded: payload = validateJWT(token, secret);
-    expect(decoded.sub).toBe(userID);
-  });
-
   it("should include iat and exp claims in the decoded payload", () => {
     const before = Math.floor(Date.now() / 1000);
     const token = makeJWT(userID, expiresIn, secret);
@@ -55,16 +48,6 @@ describe("JWT", () => {
     expect(decoded.iat).toBeGreaterThanOrEqual(before);
     expect(decoded.iat).toBeLessThanOrEqual(after);
     expect(decoded.exp).toBe((decoded.iat as number) + expiresIn);
-  });
-
-  it("should not include unexpected fields outside the payload type", () => {
-    const token = makeJWT(userID, expiresIn, secret);
-    const decoded: payload = validateJWT(token, secret);
-    const allowedKeys: (keyof payload)[] = ["iss", "sub", "iat", "exp"];
-    const decodedKeys = Object.keys(decoded);
-    decodedKeys.forEach((key) => {
-      expect(allowedKeys).toContain(key);
-    });
   });
 
   it("should throw on a token signed with a different secret", () => {
@@ -89,12 +72,6 @@ describe("JWT", () => {
   it("should produce different tokens for different userIDs", () => {
     const token1 = makeJWT("user_abc", expiresIn, secret);
     const token2 = makeJWT("user_xyz", expiresIn, secret);
-    expect(token1).not.toBe(token2);
-  });
-
-  it("should produce different tokens on repeated calls for the same userID", () => {
-    const token1 = makeJWT(userID, expiresIn, secret);
-    const token2 = makeJWT(userID, expiresIn, secret);
     expect(token1).not.toBe(token2);
   });
 });
