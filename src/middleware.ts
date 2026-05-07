@@ -23,12 +23,12 @@ export function middlewareMetricsInc(req: Request, res: Response, next: NextFunc
     next();
 }
 
-export async function validateChirp(req: Request, res: Response, next: NextFunction) {
+export async function validateChirp(req: Request, res: Response, next: NextFunction,userId?: string) {
   try {
     if (!req.body.body || typeof req.body.body !== "string") {
       throw new BadRequestError("Request body must have a 'body' field of type string");
     }
-    if (!req.body.userId || typeof req.body.userId !== "string") {
+    if (!userId) {
       throw new UnauthorizedError("User must be authenticated to post a chirp");
     }
     const parsedBody = req.body.body;
@@ -38,7 +38,7 @@ export async function validateChirp(req: Request, res: Response, next: NextFunct
     const bodyClean: BodyClean = filterProfanity(parsedBody);
     const newChirp: NewChirp = {
       body: bodyClean.body,
-      userId: req.body.userId,
+      userId: userId,
     };
     const createdChirp = await createChirp(newChirp);
     return res.status(201).json(createdChirp);
