@@ -52,6 +52,10 @@ app.post("/api/users" ,(req,res,next) => {
 app.post("/api/login", asyncHandler(async (req, res) => {
   const email = req.body?.email?.trim();
   const password = req.body?.password;
+  let expiresIn = "1h";
+  if (req.body?.expiresIn && req.body.expiresIn < "1h") {
+    expiresIn = req.body?.expiresIn;
+  }
 
   if (typeof email !== "string" || email.length === 0) {
     return res.status(400).json({ message: "Email is required" });
