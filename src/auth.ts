@@ -59,5 +59,5 @@ export function getBearerToken(req: Request): string {
 }
 
 export function makeRefreshToken(): string {
-  return crypto.randomBytes(64).toString("hex");
+  return crypto.randomBytes(32).toString("hex");
 }
