@@ -16,7 +16,7 @@ export function makeJWT(userID: string, expiresIn: number, secret: string): stri
   return jwt.sign({ userID }, secret, { expiresIn });
 }
 
-export function verifyJWT(token: string, secret: string): payload {
+export function validateJWT(token: string, secret: string): payload {
   try {
     const decoded = jwt.verify(token, secret) as payload;
     return decoded;
