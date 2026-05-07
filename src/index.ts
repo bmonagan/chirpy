@@ -9,7 +9,7 @@ import { BadRequestError, ConflictError, ForbiddenError } from "./error_classes.
 import { getChirpById, getChirps } from "./lib/db/queries/chirps.js";
 import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken } from "./auth.js";
 import { getUserByEmail } from "./lib/db/queries/users.js";
-import { createRefreshToken } from "./lib/db/queries/refreshTokens.js";
+import { createRefreshToken,validateRefreshToken,getUserIdFromRefreshToken } from "./lib/db/queries/refreshTokens.js";
 
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
@@ -131,6 +131,16 @@ app.post("/admin/reset", (req,res,next) => {
     return res.status(200).send('OK');
   })()).catch(next)
 })
+app.post("/api/refresh", asyncHandler(async (req,res) => {
+  const refreshToken = req.body?.refreshToken;
+  if (typeof refreshToken !== "string" || refreshToken.trim().length === 0) {
+    return res.status(401).json({ message: "Refresh token is required" });
+  }
+  const tokenRecord = await validateRefreshToken(refreshToken);
+  return res.status(200).json({
+    token: makeJWT(tokenRecord.userId, 3600, chirpyConfig.JWTSecret)
+  });
+}))
 
 // Error handler should be the last thing before server running.
 app.use(errorHandler);
