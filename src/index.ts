@@ -148,7 +148,7 @@ app.post("/api/revoke", asyncHandler(async (req,res) => {
     return res.status(401).json({ message: "Refresh token is required" });
   }
   await revokeRefreshToken(refreshToken);
-  return res.status(200).json({ message: "Refresh token revoked successfully" });
+  return res.status(204).json({ message: "Refresh token revoked successfully" });
 }));
 // Error handler should be the last thing before server running.
 app.use(errorHandler);
