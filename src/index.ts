@@ -140,7 +140,7 @@ app.post("/api/refresh", asyncHandler(async (req,res) => {
   });
 }))
 app.post("/api/revoke", asyncHandler(async (req,res) => {
-  const refreshToken = req.body?.refreshToken;
+  const refreshToken = getBearerToken(req);
   if (typeof refreshToken !== "string" || refreshToken.trim().length === 0) {
     return res.status(401).json({ message: "Refresh token is required" });
   }
