@@ -15,6 +15,13 @@
       "when": 1778096939981,
       "tag": "0001_nifty_hercules",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778112837636,
+      "tag": "0002_dapper_thaddeus_ross",
+      "breakpoints": true
     }
   ]
 }
