@@ -9,6 +9,7 @@ import { BadRequestError, ConflictError, ForbiddenError } from "./error_classes.
 import { getChirpById, getChirps } from "./lib/db/queries/chirps.js";
 import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken } from "./auth.js";
 import { getUserByEmail } from "./lib/db/queries/users.js";
+import { createRefreshToken } from "./lib/db/queries/refreshTokens.js";
 
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
@@ -81,13 +82,14 @@ app.post("/api/login", asyncHandler(async (req, res) => {
   if (!isPasswordValid) {
     return res.status(401).json({ message: "Invalid email or password" });
   }
+  const refreshToken = await createRefreshToken(user.id);
   return res.status(200).json({
     id: user.id,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     email: user.email,
     token: makeJWT(user.id, expiresInSeconds, chirpyConfig.JWTSecret),
-    refreshToken: makeRefreshToken()
+    refreshToken: refreshToken.token
   });
 }));
 
