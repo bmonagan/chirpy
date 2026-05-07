@@ -7,7 +7,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { createUser, resetUsers } from "./lib/db/queries/users.js";
 import { BadRequestError, ConflictError, ForbiddenError } from "./error_classes.js";
 import { getChirpById, getChirps } from "./lib/db/queries/chirps.js";
-import { hashPassword,checkPasswordHash } from "./auth.js";
+import { hashPassword,checkPasswordHash, makeJWT } from "./auth.js";
 import { getUserByEmail } from "./lib/db/queries/users.js";
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
@@ -52,9 +52,9 @@ app.post("/api/users" ,(req,res,next) => {
 app.post("/api/login", asyncHandler(async (req, res) => {
   const email = req.body?.email?.trim();
   const password = req.body?.password;
-  let expiresIn = "1h";
-  if (req.body?.expiresIn && req.body.expiresIn < "1h") {
-    expiresIn = req.body?.expiresIn;
+  let expiresInSeconds = 3600; // Default to 1 hour
+  if (req.body?.expiresIn && req.body.expiresIn < 3600) {
+    expiresInSeconds = req.body?.expiresIn;
   }
 
   if (typeof email !== "string" || email.length === 0) {
@@ -78,6 +78,7 @@ app.post("/api/login", asyncHandler(async (req, res) => {
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     email: user.email,
+    token: makeJWT(user.id, expiresInSeconds, chirpyConfig.JWTSecret)  
   });
 }));
 
