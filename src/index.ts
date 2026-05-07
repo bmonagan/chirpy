@@ -27,7 +27,7 @@ app.post("/api/chirps", async (req, res, next) => {
     if (!userID) {
       throw new ForbiddenError("Invalid token: missing user ID");
     }
-    await validateChirp(req, res, next);
+    await validateChirp(req, res, next, userID);
   } catch (err) {
     next(err);
   }
