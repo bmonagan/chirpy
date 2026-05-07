@@ -14,7 +14,13 @@ export async function checkPasswordHash(password: string, hashed_password: strin
 }
 
 export function makeJWT(userID: string, expiresIn: number, secret: string): string {
-  return jwt.sign({ userID }, secret, { expiresIn });
+  const payload: payload = {
+    sub: userID,
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + expiresIn,
+    iss: "chirpy"
+   };
+  return jwt.sign(payload, secret);
 }
 
 export function validateJWT(token: string, secret: string): payload {
