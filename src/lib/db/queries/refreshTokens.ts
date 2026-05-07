@@ -3,6 +3,7 @@ import {eq} from "drizzle-orm";
 import { refreshTokens } from "../../../schema.js";
 import { NewRefreshToken } from "../../../schema.js";
 import { makeRefreshToken } from "../../../auth.js";
+import { UnauthorizedError } from "../../../error_classes.js";
 
 export async function createRefreshToken(userId: string): Promise<NewRefreshToken> {
     const token = makeRefreshToken();
@@ -24,13 +25,13 @@ export async function validateRefreshToken(token: string) {
   .limit(1)
   .then(res => res[0]);
     if (!tokenRecord) {
-        throw new Error("Invalid refresh token");
+        throw new UnauthorizedError("Invalid refresh token");
     }
     if (tokenRecord.revokedAt) {
-        throw new Error("Refresh token has been revoked");
+        throw new UnauthorizedError("Refresh token has been revoked");
     }
     if (tokenRecord.expiresAt < new Date()) {
-        throw new Error("Refresh token has expired");
+        throw new UnauthorizedError("Refresh token has expired");
     }
     return tokenRecord;
 }
