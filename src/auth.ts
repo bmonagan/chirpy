@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import type { JwtPayload } from "jsonwebtoken";
 import { Request } from "express";
 import crypto from "crypto";
+import { UnauthorizedError } from "./error_classes.js";
 
 type payload = Pick<JwtPayload, "iss" | "sub" | "iat" | "exp">;
 
@@ -29,7 +30,7 @@ export function validateJWT(token: string, secret: string): payload {
     const decoded = jwt.verify(token, secret) as payload;
     return decoded;
   } catch (err) {
-    throw new Error("Invalid token");
+    throw new UnauthorizedError("Invalid token");
   }
 }
 
