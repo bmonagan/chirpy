@@ -14,19 +14,22 @@ type APIConfig = {
 type Config = {
   apiConfig: APIConfig;
   dbConfig: DBConfig;
+  JWTSecret: string;
 }
 
 let dbConfig:DBConfig = {
   url: envOrThrow("DB_URL"),
   migrationConfig: migrationConfig
-}
+} 
 let apiConfig: APIConfig = {
   fileServerHits: 0,
   platform: envOrThrow("PLATFORM")
 }
+let JWTSecret: string = envOrThrow("SERVER_SECRET");
 export let chirpyConfig: Config = {
   dbConfig: dbConfig,
-  apiConfig: apiConfig
+  apiConfig: apiConfig,
+  JWTSecret: JWTSecret
 };
 
 function envOrThrow(key: string): string {
