@@ -19,8 +19,18 @@ const PORT = 8080;
 app.use("/app", middlewareMetricsInc,express.static("./src/app"));
 app.use(express.json());
 app.use(middlewareLogResponses);
-app.post("/api/chirps", (req, res, next) => {
-  Promise.resolve(validateChirp(req, res,next)).catch(next);
+app.post("/api/chirps", async (req, res, next) => {
+  try {
+    const token = getBearerToken(req);
+    const payload = validateJWT(token, chirpyConfig.JWTSecret);
+    const userID = payload.sub;
+    if (!userID) {
+      throw new ForbiddenError("Invalid token: missing user ID");
+    }
+    await validateChirp(req, res, next);
+  } catch (err) {
+    next(err);
+  }
 });
 
 app.get("/api/chirps", (req,res,next) => {
