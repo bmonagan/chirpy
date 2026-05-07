@@ -41,7 +41,7 @@ app.post("/api/users" ,(req,res,next) => {
     }
 
     const hashedPassword = await hashPassword(password);
-    const newUser = await createUser({ email: email.trim(), hashed_password: hashedPassword });
+    const newUser = await createUser({ email: email.trim(), hashedPassword: hashedPassword });
     if (!newUser) {
       throw new ConflictError("User with this email already exists");
     }
@@ -65,13 +65,12 @@ app.post("/api/login", asyncHandler(async (req, res) => {
     return res.status(401).json({ message: "Invalid email or password" });
   }
 
-  const isPasswordValid = await checkPasswordHash(password, user.hashed_password);
+  const isPasswordValid = await checkPasswordHash(password, user.hashedPassword);
   if (!isPasswordValid) {
     return res.status(401).json({ message: "Invalid email or password" });
   }
-
   return res.status(200).json({
-    userId: user.id,
+    id: user.id,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     email: user.email,
