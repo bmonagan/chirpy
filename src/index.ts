@@ -1,6 +1,6 @@
 import express from "express";
 import { chirpyConfig } from './config.js'
-import {middlewareLogResponses, middlewareMetricsInc, errorHandler, validateChirp } from './middleware.js'
+import {middlewareLogResponses, middlewareMetricsInc, errorHandler, validateChirp, asyncHandler } from './middleware.js'
 import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -49,27 +49,34 @@ app.post("/api/users" ,(req,res,next) => {
     return res.status(201).json(newUser);
   })()).catch(next)
 });
-app.post("/api/login", (req,res,next) => {
-  Promise.resolve((async () => {
-    const email = req.body?.email;
-    const password = req.body?.password; 
-    if (typeof email !== "string" || email.trim().length === 0) {
-      return res.status(400).json({ message: "Email is required" });
-    }
-    if (typeof password !== "string" || password.trim().length === 0) {
-      return res.status(400).json({ message: "Password is required" });
-    }
-    const user = await getUserByEmail(email.trim());
-    if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
-    const isPasswordValid = await checkPasswordHash(password, user.hashed_password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "User not Found" });
-    }
-    return res.status(200).json({userId: user.id, createdAt: user.createdAt, updatedAt: user.updatedAt, email: user.email});
-  })()).catch(next)
-});
+app.post("/api/login", asyncHandler(async (req, res) => {
+  const email = req.body?.email?.trim();
+  const password = req.body?.password;
+
+  if (typeof email !== "string" || email.length === 0) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+  if (typeof password !== "string" || password.trim().length === 0) {
+    return res.status(400).json({ message: "Password is required" });
+  }
+
+  const user = await getUserByEmail(email);
+  if (!user) {
+    return res.status(401).json({ message: "Invalid email or password" });
+  }
+
+  const isPasswordValid = await checkPasswordHash(password, user.hashed_password);
+  if (!isPasswordValid) {
+    return res.status(401).json({ message: "Invalid email or password" });
+  }
+
+  return res.status(200).json({
+    userId: user.id,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    email: user.email,
+  });
+}));
 
 app.get("/api/chirps/:chirpId", (req,res,next) => {
   Promise.resolve((async () => {
@@ -116,5 +123,4 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
-
 
