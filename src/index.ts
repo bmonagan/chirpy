@@ -7,7 +7,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { createUser, resetUsers } from "./lib/db/queries/users.js";
 import { BadRequestError, ConflictError, ForbiddenError } from "./error_classes.js";
 import { getChirpById, getChirps } from "./lib/db/queries/chirps.js";
-import { hashPassword,checkPasswordHash, makeJWT, getBearerToken, validateJWT } from "./auth.js";
+import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken } from "./auth.js";
 import { getUserByEmail } from "./lib/db/queries/users.js";
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
@@ -33,20 +33,11 @@ app.post("/api/users" ,(req,res,next) => {
   Promise.resolve((async () => {
     const email = req.body?.email;
     const password = req.body?.password;
-    const token = req.body?.token;
     if (typeof email !== "string" || email.trim().length === 0) {
       throw new BadRequestError("Email is required");
     }
     if (typeof password !== "string" || password.trim().length === 0) {
       throw new BadRequestError("Password is required");
-    }
-    if (typeof token !== "string" || token.trim().length === 0) {
-      throw new BadRequestError("Token is required");
-    }
-    const bearerToken = getBearerToken(req);
-    const payload = validateJWT(bearerToken, chirpyConfig.JWTSecret);
-    if (!payload || !payload.sub) {
-      throw new ForbiddenError("Invalid token");
     }
 
     const hashedPassword = await hashPassword(password);
