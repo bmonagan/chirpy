@@ -8,6 +8,7 @@ import { createUser, resetUsers } from "./lib/db/queries/users.js";
 import { BadRequestError, ConflictError, ForbiddenError } from "./error_classes.js";
 import { getChirpById, getChirps } from "./lib/db/queries/chirps.js";
 import { hashPassword } from "./auth.js";
+import { getUserByEmail } from "./lib/db/queries/users.js";
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
 await migrate(drizzle(migrationClient), chirpyConfig.dbConfig.migrationConfig);
@@ -48,7 +49,22 @@ app.post("/api/users" ,(req,res,next) => {
     return res.status(201).json(newUser);
   })()).catch(next)
 });
-app.get("/api/chirps/:chirpId", (req,res,next) => {
+app.post("/api/login", (req,res,next) => {
+  Promise.resolve((async () => {
+    const email = req.body?.email;
+    const password = req.body?.password; 
+    if (typeof email !== "string" || email.trim().length === 0) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+    if (typeof password !== "string" || password.trim().length === 0) {
+      return res.status(400).json({ message: "Password is required" });
+    }
+    const user = await getUserByEmail(email.trim());
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    app.get("/api/chirps/:chirpId", (req,res,next) => {
   Promise.resolve((async () => {
     const chirpId = req.params.chirpId;
     if (!chirpId) {
