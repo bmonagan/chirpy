@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import { chirpyConfig } from "./config.js";
 import { filterProfanity, BodyClean } from "./profanity_filter.js";
 import { BadRequestError, UnauthorizedError, ForbiddenError, NotFoundError, MethodNotAllowedError, ConflictError, UnprocessableEntityError, InternalServerError } from './error_classes.js';
@@ -82,3 +82,7 @@ export function errorHandler(
 
   return res.status(500).json({ error: "Something went wrong on our end" });
 }
+
+export const asyncHandler = (fn: RequestHandler): RequestHandler =>
+  (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+  
