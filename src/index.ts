@@ -10,6 +10,7 @@ import { getChirpById, getChirps } from "./lib/db/queries/chirps.js";
 import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken } from "./auth.js";
 import { getUserByEmail } from "./lib/db/queries/users.js";
 import { createRefreshToken,getUserIdFromRefreshToken, revokeRefreshToken } from "./lib/db/queries/refreshTokens.js";
+import { get } from "http";
 
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
@@ -132,10 +133,7 @@ app.post("/admin/reset", (req,res,next) => {
   })()).catch(next)
 })
 app.post("/api/refresh", asyncHandler(async (req,res) => {
-  const refreshToken = req.body?.refreshToken;
-  if (typeof refreshToken !== "string" || refreshToken.trim().length === 0) {
-    return res.status(401).json({ message: "Refresh token is required" });
-  }
+  const refreshToken = getBearerToken(req);
   const userId = await getUserIdFromRefreshToken(refreshToken);
   return res.status(200).json({
     token: makeJWT(userId, 3600, chirpyConfig.JWTSecret)
