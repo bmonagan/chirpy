@@ -1,6 +1,7 @@
 import {hash, verify} from "argon2";
 import jwt from "jsonwebtoken";
 import type { JwtPayload } from "jsonwebtoken";
+import { Request } from "express";
 
 type payload = Pick<JwtPayload, "iss" | "sub" | "iat" | "exp">;
 
@@ -26,13 +27,25 @@ export function validateJWT(token: string, secret: string): payload {
 }
 
 export function getBearerToken(req: Request): string {
-  const authorizationHeader = req.headers.get("Authorization");
+  const authorizationHeader = req.get("Authorization");
   if (!authorizationHeader) {
     throw new Error("Authorization header missing");
   }
-  const [scheme, token] = authorizationHeader.split(" ");
-  if (scheme !== "Bearer") {
-    throw new Error("Invalid authorization scheme");
+
+  const spaceIndex = authorizationHeader.indexOf(" ");
+  if (spaceIndex === -1) {
+    throw new Error("Malformed authorization header");
   }
+
+  const scheme = authorizationHeader.slice(0, spaceIndex);
+  if (scheme.toLowerCase() !== "bearer") {
+    throw new Error(`Invalid authorization scheme: ${scheme}`);
+  }
+
+  const token = authorizationHeader.slice(spaceIndex + 1).trim();
+  if (!token) {
+    throw new Error("Bearer token missing");
+  }
+
   return token;
 }
