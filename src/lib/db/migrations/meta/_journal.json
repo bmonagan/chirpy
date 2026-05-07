@@ -36,6 +36,13 @@
       "when": 1778113967627,
       "tag": "0004_pale_shockwave",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778193775375,
+      "tag": "0005_burly_mulholland_black",
+      "breakpoints": true
     }
   ]
 }
