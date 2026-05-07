@@ -16,8 +16,6 @@ export async function resetUsers() {
 }
 
 export async function getUserByEmail(email: string) {
-  const user = await db.query.users.findFirst({
-    where: eq(users.email, email),
-  });
-  return user ?? null;
+  const [result] = await db.select().from(users).where(eq(users.email, email));
+  return result ?? null;
 }
