@@ -53,7 +53,7 @@ export function errorHandler(
   res: Response,
   next: NextFunction,
 ) {
-  console.error("Error occured");
+  console.error(err);
 
   if (err instanceof BadRequestError) {
     return res.status(400).json({ error: err.message });
