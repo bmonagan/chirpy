@@ -1,9 +1,10 @@
 import {hash, verify} from "argon2";
 import jwt from "jsonwebtoken";
 import type { JwtPayload } from "jsonwebtoken";
-import { Request } from "express";
+import { Request, RequestHandler } from "express";
 import crypto from "crypto";
 import { UnauthorizedError } from "./error_classes.js";
+import { chirpyConfig } from "./config.js";
 
 export type Payload = Pick<JwtPayload, "iss" | "sub" | "iat" | "exp">;
 
@@ -61,3 +62,13 @@ export function getBearerToken(req: Request): string {
 export function makeRefreshToken(): string {
   return crypto.randomBytes(32).toString("hex");
 }
+
+export const requireAuth: RequestHandler = (req, res, next) => {
+  try {
+    const token = getBearerToken(req);
+    res.locals.payload = validateJWT(token, chirpyConfig.JWTSecret);
+    next();
+  } catch {
+    next(new UnauthorizedError("Invalid token"));
+  }
+};
