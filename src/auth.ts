@@ -71,4 +71,16 @@ export const requireAuth: RequestHandler = (req, res, next) => {
   } catch {
     next(new UnauthorizedError("Invalid token"));
   }
-};
+}
+
+export function getAPIKey(req: Request): string {
+  const apiKey = req.get("Authorization");
+  if (!apiKey) {
+    throw new UnauthorizedError("API key missing");
+  }
+  const [apiName, apiKeyValue] = apiKey.split(" ");
+  if (apiName !== "Apikey" || !apiKeyValue) {
+    throw new UnauthorizedError("Invalid API key");
+  }
+  return apiKeyValue;
+}
