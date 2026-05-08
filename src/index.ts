@@ -177,8 +177,8 @@ app.post("/api/revoke", asyncHandler(async (req,res) => {
   return res.status(204).json({ message: "Refresh token revoked successfully" });
 }));
 app.delete("/api/chirps/:chirpId", asyncHandler(async (req,res) => {
-  const chirpId:string = req.params.chirpId[0];
-  if (!chirpId) {
+  const { chirpId } = req.params;
+  if (typeof chirpId !== "string") {
     throw new BadRequestError("Invalid chirp ID");
   }
   let token: string;
