@@ -196,6 +196,15 @@ app.delete("/api/chirps/:chirpId", requireAuth, asyncHandler(async (req, res) =>
   return res.status(204).send();
 }))
 app.post("/api/polka/webhooks", (req,res) => {
+  let polkaKey: string;
+  try {
+    polkaKey = getAPIKey(req);} 
+  catch {
+    return res.status(401).json({ message: "Invalid API key" });
+  }
+  if (polkaKey !== chirpyConfig.apiConfig.polkaKey) {
+    return res.status(401).json({ message: "Invalid API key" });
+  }
   if (!req.body.event) {
     return res.status(400).json({ message: "Invalid event" });
   }
@@ -206,10 +215,7 @@ app.post("/api/polka/webhooks", (req,res) => {
   if (!userId) {
     return res.status(404).json({ message: "Invalid event data: missing userId" });
   }
-  const polkaKey = getAPIKey(req);
-  if (polkaKey !== chirpyConfig.apiConfig.polkaKey) {
-    return res.status(401).json({ message: "Invalid API key" });
-  }
+  
   updateUserChirpyRedStatus(userId, true).catch(err => {
     return res.status(404).json({ message: "Failed to update user chirpy red statusnp" });
   });
