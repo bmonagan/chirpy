@@ -82,7 +82,5 @@ export function getAPIKey(req: Request): string {
   if (apiName !== "ApiKey" || !apiKeyValue) {
     throw new UnauthorizedError("Invalid API key");
   }
-  console.log("received key:", apiKeyValue);
-  console.log("expected key:", chirpyConfig.apiConfig.polkaKey);
   return apiKeyValue;
 }
