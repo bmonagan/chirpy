@@ -20,3 +20,7 @@ export async function getChirpById(id: string): Promise<typeof chirps.$inferSele
   });
   return chirp ?? null;
 }
+
+export async function deleteChirpById(id: string): Promise<void> {
+  await db.delete(chirps).where(eq(chirps.id, id));
+}
