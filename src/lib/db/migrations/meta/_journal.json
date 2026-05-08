@@ -43,6 +43,13 @@
       "when": 1778193775375,
       "tag": "0005_burly_mulholland_black",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778265018114,
+      "tag": "0006_fat_the_call",
+      "breakpoints": true
     }
   ]
 }
