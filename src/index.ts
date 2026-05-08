@@ -71,8 +71,14 @@ app.put("/api/users", (req,res,next) => {
     if (typeof new_password !== "string" || new_password.trim().length === 0) {
       throw new UnauthorizedError("Password is required");
     }
-    const token = getBearerToken(req);
-    const payload = validateJWT(token, chirpyConfig.JWTSecret);
+    let token;
+    let payload;
+    try {
+      token = getBearerToken(req);
+      payload = validateJWT(token, chirpyConfig.JWTSecret);
+    } catch (err) {
+      throw new UnauthorizedError("Invalid token");
+    }
     const userID = payload.sub;
     if (!userID) {
       throw new UnauthorizedError("Invalid token: missing user ID");
