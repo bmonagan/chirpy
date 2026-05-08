@@ -7,7 +7,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { createUser, resetUsers, updateUserChirpyRedStatus } from "./lib/db/queries/users.js";
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from "./error_classes.js";
 import { deleteChirpById, getChirpById, getChirps } from "./lib/db/queries/chirps.js";
-import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken, Payload, requireAuth } from "./auth.js";
+import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken, Payload, requireAuth, getAPIKey } from "./auth.js";
 import { getUserByEmail, updateUser } from "./lib/db/queries/users.js";
 import { createRefreshToken,getUserIdFromRefreshToken, revokeRefreshToken } from "./lib/db/queries/refreshTokens.js";
 
@@ -205,6 +205,10 @@ app.post("/api/polka/webhooks", (req,res) => {
   const userId = req.body.data?.userId;
   if (!userId) {
     return res.status(404).json({ message: "Invalid event data: missing userId" });
+  }
+  const polkaKey = getAPIKey(req);
+  if (polkaKey !== chirpyConfig.apiConfig.polkaKey) {
+    return res.status(401).json({ message: "Invalid API key" });
   }
   updateUserChirpyRedStatus(userId, true).catch(err => {
     return res.status(404).json({ message: "Failed to update user chirpy red statusnp" });
