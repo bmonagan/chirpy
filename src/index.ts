@@ -5,8 +5,8 @@ import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { createUser, resetUsers } from "./lib/db/queries/users.js";
-import { BadRequestError, ConflictError, ForbiddenError, UnauthorizedError } from "./error_classes.js";
-import { getChirpById, getChirps } from "./lib/db/queries/chirps.js";
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from "./error_classes.js";
+import { deleteChirpById, getChirpById, getChirps } from "./lib/db/queries/chirps.js";
 import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken, Payload } from "./auth.js";
 import { getUserByEmail, updateUser } from "./lib/db/queries/users.js";
 import { createRefreshToken,getUserIdFromRefreshToken, revokeRefreshToken } from "./lib/db/queries/refreshTokens.js";
@@ -176,6 +176,33 @@ app.post("/api/revoke", asyncHandler(async (req,res) => {
   await revokeRefreshToken(refreshToken);
   return res.status(204).json({ message: "Refresh token revoked successfully" });
 }));
+app.delete("/api/chirps/:chirpId", asyncHandler(async (req,res) => {
+  const chirpId:string = req.params.chirpId[0];
+  if (!chirpId) {
+    throw new BadRequestError("Invalid chirp ID");
+  }
+  let token: string;
+  let payload: Payload;
+  try {
+    token = getBearerToken(req);
+    payload = validateJWT(token, chirpyConfig.JWTSecret);
+  } catch {
+    throw new ForbiddenError("Must be authorized to delete chirp");
+  }
+  const userID = payload.sub;
+  if (!userID) {
+    throw new ForbiddenError("Invalid token: missing user ID");
+  }
+  const chirp = await getChirpById(chirpId);
+  if (!chirp) {
+    throw new NotFoundError("Chirp not found");
+  }
+  if (chirp.userId !== userID) {
+    throw new ForbiddenError("Users can only delete their own chirps");
+  }
+  await deleteChirpById(chirpId);
+  return res.status(204).send();
+}))
 // Error handler should be the last thing before server running.
 app.use(errorHandler);
 // Final step for the server to be running.
