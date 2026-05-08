@@ -23,4 +23,9 @@ export async function getUserByEmail(email: string) {
 export async function updateUser(user: { id: string; email: string; hashedPassword: string }) {
   const [result] = await db.update(users).set({ email: user.email, hashedPassword: user.hashedPassword }).where(eq(users.id, user.id)).returning();
   return result;
-} 
+}
+
+export async function updateUserChirpyRedStatus(userId: string, isChirpyRed: boolean) {
+  const [result] = await db.update(users).set({ isChirpyRed }).where(eq(users.id, userId)).returning();
+  return result;
+}
