@@ -66,10 +66,10 @@ app.put("/api/users", (req,res,next) => {
     const new_email = req.body?.email;
     const new_password = req.body?.password;
     if (typeof new_email !== "string" || new_email.trim().length === 0) {
-      throw new UnauthorizedError("Email is required");
+      throw new BadRequestError("Email is required");
     }
     if (typeof new_password !== "string" || new_password.trim().length === 0) {
-      throw new UnauthorizedError("Password is required");
+      throw new BadRequestError("Password is required");
     }
     let token;
     let payload;
