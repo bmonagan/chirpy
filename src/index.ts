@@ -30,12 +30,10 @@ app.post("/api/chirps", requireAuth, asyncHandler(async (req, res,next) => {
   await validateChirp(req, res, next, userID);
 }));
 
-app.get("/api/chirps", (req,res,next) => {
-  Promise.resolve((async () => {
-    const chirps = await getChirps();
-    return res.status(200).json(chirps);
-  })()).catch(next)
-});
+app.get("/api/chirps", asyncHandler(async (req, res, next) => {
+  const chirps = await getChirps();
+  return res.status(200).json(chirps);
+}));
 app.post("/api/users" ,(req,res,next) => {
   Promise.resolve((async () => {
     const email = req.body?.email;
