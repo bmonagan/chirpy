@@ -215,7 +215,7 @@ app.post("/api/polka/webhooks", (req,res) => {
     return res.status(404).json({ message: "Invalid event data: missing userId" });
   }
   updateUserChirpyRedStatus(userId, true).catch(err => {
-    return res.status(404).json({ message: "Failed to update user chirpy red status" });
+    return res.status(404).json({ message: "Failed to update user chirpy red statusnp" });
   });
   return res.status(200).json({ message: "Webhook received" });
 });
