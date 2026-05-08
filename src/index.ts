@@ -36,7 +36,7 @@ app.get("/api/chirps", asyncHandler(async (req, res, next) => {
     if (typeof userId !== "string") {
       throw new BadRequestError("Invalid user ID");
     }
-    const chirps = await getChirps({ userId });
+    const chirps = await getChirps(userId);
     return res.status(200).json(chirps);
   }
   const chirps = await getChirps();
