@@ -1,6 +1,6 @@
 import { db } from "../../db/index.js";
 import { NewChirp, chirps } from "../../../schema.js";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, desc } from "drizzle-orm";
 
 export async function createChirp(chirp: NewChirp) {
   const [result] = await db
@@ -10,11 +10,15 @@ export async function createChirp(chirp: NewChirp) {
   return result;
 }
 
-export async function getChirps(userId?: string) {
-  if (userId) {
-    return await db.select().from(chirps).where(eq(chirps.userId, userId)).orderBy(asc(chirps.createdAt));
+export async function getChirps(userId?: string, sort?: string = "asc") {
+  if (sort !== "asc" && sort !== "desc") {
+    throw new Error("Invalid sort order");
   }
-  return await db.select().from(chirps).orderBy(asc(chirps.createdAt));
+
+  if (userId) {
+    return await db.select().from(chirps).where(eq(chirps.userId, userId)).orderBy(sort === "asc" ? asc(chirps.createdAt) : desc(chirps.createdAt));
+  }
+  return await db.select().from(chirps).orderBy(sort === "asc" ? asc(chirps.createdAt) : desc(chirps.createdAt));
 }
 
 export async function getChirpById(id: string): Promise<typeof chirps.$inferSelect | null> {
