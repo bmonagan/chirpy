@@ -18,6 +18,7 @@ type Config = {
   JWTSecret: string;
 }
 
+// Load configuration from environment variables and export as chirpyConfig
 let dbConfig:DBConfig = {
   url: envOrThrow("DB_URL"),
   migrationConfig: migrationConfig
