@@ -10,7 +10,7 @@ export async function createChirp(chirp: NewChirp) {
   return result;
 }
 
-export async function getChirps(userId?: string, sort?: string = "asc") {
+export async function getChirps(userId?: string, sort: string = "asc") {
   if (sort !== "asc" && sort !== "desc") {
     throw new Error("Invalid sort order");
   }
