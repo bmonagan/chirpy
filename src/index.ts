@@ -4,7 +4,7 @@ import {middlewareLogResponses, middlewareMetricsInc, errorHandler, validateChir
 import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { createUser, resetUsers } from "./lib/db/queries/users.js";
+import { createUser, resetUsers, updateUserChirpyRedStatus } from "./lib/db/queries/users.js";
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from "./error_classes.js";
 import { deleteChirpById, getChirpById, getChirps } from "./lib/db/queries/chirps.js";
 import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken, Payload } from "./auth.js";
@@ -203,6 +203,22 @@ app.delete("/api/chirps/:chirpId", asyncHandler(async (req,res) => {
   await deleteChirpById(chirpId);
   return res.status(204).send();
 }))
+app.post("/api/polka/webhooks", (req,res) => {
+  if (!req.body.event) {
+    return res.status(400).json({ message: "Invalid event" });
+  }
+  if (req.body.event != "user.upgraded") {
+    return res.status(204).json({ message: "Event ignored" });
+  }
+  const userId = req.body.data?.userId;
+  if (!userId) {
+    return res.status(404).json({ message: "Invalid event data: missing userId" });
+  }
+  updateUserChirpyRedStatus(userId, true).catch(err => {
+    return res.status(404).json({ message: "Failed to update user chirpy red status" });
+  });
+  return res.status(200).json({ message: "Webhook received" });
+});
 // Error handler should be the last thing before server running.
 app.use(errorHandler);
 // Final step for the server to be running.
