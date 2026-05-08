@@ -7,7 +7,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { createUser, resetUsers, updateUserChirpyRedStatus } from "./lib/db/queries/users.js";
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from "./error_classes.js";
 import { deleteChirpById, getChirpById, getChirps } from "./lib/db/queries/chirps.js";
-import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken, Payload } from "./auth.js";
+import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken, Payload, requireAuth } from "./auth.js";
 import { getUserByEmail, updateUser } from "./lib/db/queries/users.js";
 import { createRefreshToken,getUserIdFromRefreshToken, revokeRefreshToken } from "./lib/db/queries/refreshTokens.js";
 
@@ -177,23 +177,18 @@ app.post("/api/revoke", asyncHandler(async (req,res) => {
   await revokeRefreshToken(refreshToken);
   return res.status(204).json({ message: "Refresh token revoked successfully" });
 }));
-app.delete("/api/chirps/:chirpId", asyncHandler(async (req,res) => {
+app.delete("/api/chirps/:chirpId", requireAuth, asyncHandler(async (req, res) => {
   const { chirpId } = req.params;
   if (typeof chirpId !== "string") {
     throw new BadRequestError("Invalid chirp ID");
   }
-  let token: string;
-  let payload: Payload;
-  try {
-    token = getBearerToken(req);
-    payload = validateJWT(token, chirpyConfig.JWTSecret);
-  } catch {
-    throw new UnauthorizedError("Must be authorized to delete chirp");
-  }
+
+  const payload: Payload = res.locals.payload;
   const userID = payload.sub;
   if (!userID) {
     throw new ForbiddenError("Invalid token: missing user ID");
   }
+
   const chirp = await getChirpById(chirpId);
   if (!chirp) {
     throw new NotFoundError("Chirp not found");
@@ -201,6 +196,7 @@ app.delete("/api/chirps/:chirpId", asyncHandler(async (req,res) => {
   if (chirp.userId !== userID) {
     throw new ForbiddenError("Users can only delete their own chirps");
   }
+
   await deleteChirpById(chirpId);
   return res.status(204).send();
 }))
