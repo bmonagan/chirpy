@@ -119,7 +119,8 @@ app.post("/api/login", asyncHandler(async (req, res) => {
     updatedAt: user.updatedAt,
     email: user.email,
     token: makeJWT(user.id, expiresInSeconds, chirpyConfig.JWTSecret),
-    refreshToken: refreshToken.token
+    refreshToken: refreshToken.token,
+    isChirpyRed: user.isChirpyRed
   });
 }));
 
