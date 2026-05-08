@@ -7,7 +7,8 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { createUser, resetUsers } from "./lib/db/queries/users.js";
 import { BadRequestError, ConflictError, ForbiddenError, UnauthorizedError } from "./error_classes.js";
 import { getChirpById, getChirps } from "./lib/db/queries/chirps.js";
-import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken } from "./auth.js";
+import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken} from "./auth.js";
+import type { Payload } from "./auth.js";
 import { getUserByEmail, updateUser } from "./lib/db/queries/users.js";
 import { createRefreshToken,getUserIdFromRefreshToken, revokeRefreshToken } from "./lib/db/queries/refreshTokens.js";
 
@@ -41,26 +42,36 @@ app.get("/api/chirps", (req,res,next) => {
     return res.status(200).json(chirps);
   })()).catch(next)
 });
-app.post("/api/users" ,(req,res,next) => {
-  Promise.resolve((async () => {
-    const email = req.body?.email;
-    const password = req.body?.password;
-    if (typeof email !== "string" || email.trim().length === 0) {
-      throw new BadRequestError("Email is required");
-    }
-    if (typeof password !== "string" || password.trim().length === 0) {
-      throw new BadRequestError("Password is required");
-    }
+app.put("/api/users", asyncHandler(async (req, res) => {
+  const new_email = req.body?.email;
+  const new_password = req.body?.password;
 
-    const hashedPassword = await hashPassword(password);
-    const newUser = await createUser({ email: email.trim(), hashedPassword: hashedPassword });
-    if (!newUser) {
-      throw new ConflictError("User with this email already exists");
-    }
+  if (typeof new_email !== "string" || new_email.trim().length === 0) {
+    throw new BadRequestError("Email is required");
+  }
+  if (typeof new_password !== "string" || new_password.trim().length === 0) {
+    throw new BadRequestError("Password is required");
+  }
 
-    return res.status(201).json(newUser);
-  })()).catch(next)
-});
+  let token: string;
+  let payload: Payload; // whatever your type is
+  try {
+    token = getBearerToken(req);
+    payload = validateJWT(token, chirpyConfig.JWTSecret);
+  } catch {
+    throw new UnauthorizedError("Invalid token");
+  }
+
+  const userID = payload.sub;
+  if (!userID) {
+    throw new UnauthorizedError("Invalid token: missing user ID");
+  }
+
+  const hashedPassword = await hashPassword(new_password);
+  const updatedUser = await updateUser({ id: userID, email: new_email.trim(), hashedPassword });
+
+  return res.status(200).json(updatedUser);
+}));
 app.put("/api/users", (req,res,next) => {
   Promise.resolve((async () => {
     const new_email = req.body?.email;
