@@ -5,7 +5,7 @@ import { Request } from "express";
 import crypto from "crypto";
 import { UnauthorizedError } from "./error_classes.js";
 
-type payload = Pick<JwtPayload, "iss" | "sub" | "iat" | "exp">;
+export type Payload = Pick<JwtPayload, "iss" | "sub" | "iat" | "exp">;
 
 export async function hashPassword(password: string): Promise<string> {
   return await hash(password);
@@ -16,7 +16,7 @@ export async function checkPasswordHash(password: string, hashed_password: strin
 }
 
 export function makeJWT(userID: string, expiresIn: number, secret: string): string {
-  const payload: payload = {
+  const payload: Payload = {
     sub: userID,
     iat: Math.floor(Date.now() / 1000),
     exp: Math.floor(Date.now() / 1000) + expiresIn,
@@ -25,9 +25,9 @@ export function makeJWT(userID: string, expiresIn: number, secret: string): stri
   return jwt.sign(payload, secret);
 }
 
-export function validateJWT(token: string, secret: string): payload {
+export function validateJWT(token: string, secret: string): Payload {
   try {
-    const decoded = jwt.verify(token, secret) as payload;
+    const decoded = jwt.verify(token, secret) as Payload;
     return decoded;
   } catch (err) {
     throw new UnauthorizedError("Invalid token");
