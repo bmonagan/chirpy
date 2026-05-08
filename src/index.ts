@@ -217,7 +217,7 @@ app.post("/api/polka/webhooks", (req,res) => {
   updateUserChirpyRedStatus(userId, true).catch(err => {
     return res.status(404).json({ message: "Failed to update user chirpy red statusnp" });
   });
-  return res.status(200).json({ message: "Webhook received" });
+  return res.status(204).json({ message: "Chirpy red status updated" });
 });
 // Error handler should be the last thing before server running.
 app.use(errorHandler);
