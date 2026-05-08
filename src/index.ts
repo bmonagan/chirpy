@@ -31,15 +31,16 @@ app.post("/api/chirps", requireAuth, asyncHandler(async (req, res,next) => {
 }));
 
 app.get("/api/chirps", asyncHandler(async (req, res, next) => {
+  const sort = (req.query.sort as string) ?? "asc";
   if (req.query.authorId) {
     const authorId = req.query.authorId;
     if (typeof authorId !== "string") {
       throw new BadRequestError("Invalid author ID");
     }
-    const chirps = await getChirps(authorId);
+    const chirps = await getChirps(authorId, sort);
     return res.status(200).json(chirps);
   }
-  const chirps = await getChirps();
+  const chirps = await getChirps(undefined, sort);
   return res.status(200).json(chirps);
 }));
 app.post("/api/users" ,(req,res,next) => {
