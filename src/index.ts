@@ -31,6 +31,14 @@ app.post("/api/chirps", requireAuth, asyncHandler(async (req, res,next) => {
 }));
 
 app.get("/api/chirps", asyncHandler(async (req, res, next) => {
+  if (req.query.userId) {
+    const userId = req.query.userId;
+    if (typeof userId !== "string") {
+      throw new BadRequestError("Invalid user ID");
+    }
+    const chirps = await getChirps({ userId });
+    return res.status(200).json(chirps);
+  }
   const chirps = await getChirps();
   return res.status(200).json(chirps);
 }));
