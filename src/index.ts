@@ -5,7 +5,7 @@ import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { createUser, resetUsers } from "./lib/db/queries/users.js";
-import { BadRequestError, ConflictError, ForbiddenError } from "./error_classes.js";
+import { BadRequestError, ConflictError, ForbiddenError, UnauthorizedError } from "./error_classes.js";
 import { getChirpById, getChirps } from "./lib/db/queries/chirps.js";
 import { hashPassword,checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken } from "./auth.js";
 import { getUserByEmail } from "./lib/db/queries/users.js";
@@ -59,6 +59,27 @@ app.post("/api/users" ,(req,res,next) => {
     }
 
     return res.status(201).json(newUser);
+  })()).catch(next)
+});
+app.put("/api/users/", (req,res,next) => {
+  Promise.resolve((async () => {
+    const new_email = req.body?.email;
+    const new_password = req.body?.password;
+    if (typeof new_email !== "string" || new_email.trim().length === 0) {
+      throw new UnauthorizedError("Email is required");
+    }
+    if (typeof new_password !== "string" || new_password.trim().length === 0) {
+      throw new UnauthorizedError("Password is required");
+    }
+    const token = getBearerToken(req);
+    const payload = validateJWT(token, chirpyConfig.JWTSecret);
+    const userID = payload.sub;
+    if (!userID) {
+      throw new UnauthorizedError("Invalid token: missing user ID");
+    }
+    const hashedPassword = await hashPassword(new_password);
+    const updatedUser = await createUser({ id: userID, email: new_email.trim(), hashedPassword: hashedPassword });
+    return res.status(200).json(updatedUser);
   })()).catch(next)
 });
 app.post("/api/login", asyncHandler(async (req, res) => {
