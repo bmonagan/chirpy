@@ -10,6 +10,7 @@ type DBConfig  = {
 type APIConfig = {
   fileServerHits: number;
   platform: string;
+  polkaKey: string;
 };
 type Config = {
   apiConfig: APIConfig;
@@ -23,7 +24,8 @@ let dbConfig:DBConfig = {
 } 
 let apiConfig: APIConfig = {
   fileServerHits: 0,
-  platform: envOrThrow("PLATFORM")
+  platform: envOrThrow("PLATFORM"),
+  polkaKey: envOrThrow("POLKA_KEY")
 }
 let JWTSecret: string = envOrThrow("SERVER_SECRET");
 export let chirpyConfig: Config = {
