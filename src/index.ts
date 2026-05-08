@@ -187,7 +187,7 @@ app.delete("/api/chirps/:chirpId", asyncHandler(async (req,res) => {
     token = getBearerToken(req);
     payload = validateJWT(token, chirpyConfig.JWTSecret);
   } catch {
-    throw new ForbiddenError("Must be authorized to delete chirp");
+    throw new UnauthorizedError("Must be authorized to delete chirp");
   }
   const userID = payload.sub;
   if (!userID) {
