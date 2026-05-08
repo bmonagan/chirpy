@@ -10,7 +10,10 @@ export async function createChirp(chirp: NewChirp) {
   return result;
 }
 
-export async function getChirps() {
+export async function getChirps(userId?: string) {
+  if (userId) {
+    return await db.select().from(chirps).where(eq(chirps.userId, userId)).orderBy(asc(chirps.createdAt));
+  }
   return await db.select().from(chirps).orderBy(asc(chirps.createdAt));
 }
 
