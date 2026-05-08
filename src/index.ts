@@ -31,12 +31,12 @@ app.post("/api/chirps", requireAuth, asyncHandler(async (req, res,next) => {
 }));
 
 app.get("/api/chirps", asyncHandler(async (req, res, next) => {
-  if (req.query.userId) {
-    const userId = req.query.userId;
-    if (typeof userId !== "string") {
-      throw new BadRequestError("Invalid user ID");
+  if (req.query.authorId) {
+    const authorId = req.query.authorId;
+    if (typeof authorId !== "string") {
+      throw new BadRequestError("Invalid author ID");
     }
-    const chirps = await getChirps(userId);
+    const chirps = await getChirps(authorId);
     return res.status(200).json(chirps);
   }
   const chirps = await getChirps();
