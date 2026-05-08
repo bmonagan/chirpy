@@ -79,7 +79,7 @@ export function getAPIKey(req: Request): string {
     throw new UnauthorizedError("API key missing");
   }
   const [apiName, apiKeyValue] = apiKey.split(" ");
-  if (apiName !== "Apikey" || !apiKeyValue) {
+  if (apiName !== "ApiKey" || !apiKeyValue) {
     throw new UnauthorizedError("Invalid API key");
   }
   console.log("received key:", apiKeyValue);
