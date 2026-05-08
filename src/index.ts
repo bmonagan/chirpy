@@ -21,19 +21,14 @@ const PORT = 8080;
 app.use("/app", middlewareMetricsInc,express.static("./src/app"));
 app.use(express.json());
 app.use(middlewareLogResponses);
-app.post("/api/chirps", async (req, res, next) => {
-  try {
-    const token = getBearerToken(req);
-    const payload = validateJWT(token, chirpyConfig.JWTSecret);
-    const userID = payload.sub;
-    if (!userID) {
-      throw new ForbiddenError("Invalid token: missing user ID");
-    }
-    await validateChirp(req, res, next, userID);
-  } catch (err) {
-    next(err);
+app.post("/api/chirps", requireAuth, asyncHandler(async (req, res,next) => {
+  const payload: Payload = res.locals.payload;
+  const userID = payload.sub;
+  if (!userID) {
+    throw new ForbiddenError("Invalid token: missing user ID");
   }
-});
+  await validateChirp(req, res, next, userID);
+}));
 
 app.get("/api/chirps", (req,res,next) => {
   Promise.resolve((async () => {
