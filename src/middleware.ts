@@ -55,32 +55,41 @@ export function errorHandler(
 ) {
   console.error(err);
 
+  const timestamp = new Date().toISOString();
+  const response = (statusCode: number, message: string) => {
+    return res.status(statusCode).json({
+      error: message,
+      timestamp,
+      path: req.path
+    });
+  };
+
   if (err instanceof BadRequestError) {
-    return res.status(400).json({ error: err.message });
+    return response(400, err.message);
   }
   if (err instanceof UnauthorizedError) {
-    return res.status(401).json({ error: err.message });
+    return response(401, err.message);
   }
   if (err instanceof ForbiddenError) {
-    return res.status(403).json({ error: err.message });
+    return response(403, err.message);
   }
   if (err instanceof NotFoundError) {
-    return res.status(404).json({ error: err.message });
+    return response(404, err.message);
   }
   if (err instanceof MethodNotAllowedError) {
-    return res.status(405).json({ error: err.message });
+    return response(405, err.message);
   }
   if (err instanceof ConflictError) {
-    return res.status(409).json({ error: err.message });
+    return response(409, err.message);
   }
   if (err instanceof UnprocessableEntityError) {
-    return res.status(422).json({ error: err.message });
+    return response(422, err.message);
   }
   if (err instanceof InternalServerError) {
-    return res.status(500).json({ error: "Something went wrong on our end" });
+    return response(500, "Something went wrong on our end");
   }
 
-  return res.status(500).json({ error: "Something went wrong on our end" });
+  return response(500, "Something went wrong on our end");
 }
 
 export const asyncHandler = (fn: RequestHandler): RequestHandler =>
