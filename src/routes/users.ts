@@ -3,7 +3,7 @@ import { asyncHandler } from "../middleware.js";
 import { Payload, hashPassword, validateJWT, getBearerToken } from "../auth.js";
 import { chirpyConfig } from "../config.js";
 import { BadRequestError, ConflictError, UnauthorizedError } from "../error_classes.js";
-import { createUser, updateUser } from "../lib/db/queries/users.js";
+import { createUser, updateUser, updateUserProfile } from "../lib/db/queries/users.js";
 
 const router = Router();
 
@@ -56,6 +56,37 @@ router.put("/", asyncHandler(async (req, res) => {
   const hashedPassword = await hashPassword(new_password);
   const updatedUser = await updateUser({ id: userID, email: new_email.trim(), hashedPassword });
 
+  return res.status(200).json(updatedUser);
+}));
+
+router.patch("/profile", asyncHandler(async (req, res) => {
+  const { bio, avatarUrl } = req.body;
+
+  let token: string;
+  let payload: Payload;
+  try {
+    token = getBearerToken(req);
+    payload = validateJWT(token, chirpyConfig.JWTSecret);
+  } catch {
+    throw new UnauthorizedError("Invalid token");
+  }
+
+  const userID = payload.sub;
+  if (!userID) {
+    throw new UnauthorizedError("Invalid token: missing user ID");
+  }
+
+  if (bio !== undefined && typeof bio !== "string") {
+    throw new BadRequestError("Bio must be a string");
+  }
+  if (bio && bio.length > 500) {
+    throw new BadRequestError("Bio is too long. Max length is 500");
+  }
+  if (avatarUrl !== undefined && typeof avatarUrl !== "string") {
+    throw new BadRequestError("Avatar URL must be a string");
+  }
+
+  const updatedUser = await updateUserProfile(userID, bio, avatarUrl);
   return res.status(200).json(updatedUser);
 }));
 

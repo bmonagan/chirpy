@@ -10,6 +10,9 @@ import userRoutes from "./routes/users.js";
 import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import webhookRoutes from "./routes/webhooks.js";
+import likesRoutes from "./routes/likes.js";
+import followsRoutes from "./routes/follows.js";
+import commentsRoutes from "./routes/comments.js";
 
 const migrationClient = postgres(chirpyConfig.dbConfig.url, { max: 1 });
 await migrate(drizzle(migrationClient), chirpyConfig.dbConfig.migrationConfig);
@@ -22,7 +25,10 @@ app.use(express.json());
 app.use(middlewareLogResponses);
 
 app.use("/api/chirps", chirpRoutes);
+app.use("/api/chirps", likesRoutes);
+app.use("/api/chirps", commentsRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/users", followsRoutes);
 app.use("/api", authRoutes);
 app.use("/", adminRoutes);
 app.use("/api/polka/webhooks", webhookRoutes);
