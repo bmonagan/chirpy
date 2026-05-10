@@ -14,9 +14,9 @@ export async function getCommentById(id: string) {
   });
 }
 
-export async function getCommentsByChirp(chirpId: string, sort: string = "asc") {
+export async function getCommentsByChirp(chirpId: string, sort: string = "asc", limit: number = 100, offset: number = 0) {
   const orderFn = sort === "desc" ? desc(comments.createdAt) : asc(comments.createdAt);
-  return await db.select().from(comments).where(eq(comments.chirpId, chirpId)).orderBy(orderFn);
+  return await db.select().from(comments).where(eq(comments.chirpId, chirpId)).orderBy(orderFn).limit(limit).offset(offset);
 }
 
 export async function getCommentsByUser(userId: string, sort: string = "asc") {
