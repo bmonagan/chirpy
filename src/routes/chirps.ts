@@ -31,7 +31,7 @@ router.get("/", asyncHandler(async (req, res) => {
 
 router.get("/:chirpId", asyncHandler(async (req, res) => {
   const chirpId = req.params.chirpId;
-  if (!chirpId) {
+  if (typeof chirpId !== "string") {
     throw new BadRequestError("Invalid chirp ID");
   }
   const chirp = await getChirpById(chirpId);
