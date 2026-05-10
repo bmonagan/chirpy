@@ -56,7 +56,7 @@ export const likes = pgTable("likes", {
   uniqueUserChirp: { columns: [table.userId, table.chirpId], name: "unique_user_chirp_like" }
 }));
 
-export type NewLike = typeof likes.$inferSelect;
+export type NewLike = typeof likes.$inferInsert;
 
 export const follows = pgTable("follows", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -71,7 +71,7 @@ export const follows = pgTable("follows", {
   uniqueFollow: { columns: [table.followerId, table.followingId], name: "unique_follow" }
 }));
 
-export type NewFollow = typeof follows.$inferSelect;
+export type NewFollow = typeof follows.$inferInsert;
 
 export const comments = pgTable("comments", {
   id: uuid("id").primaryKey().defaultRandom(),
