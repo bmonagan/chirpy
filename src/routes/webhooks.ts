@@ -27,7 +27,7 @@ router.post("/", (req, res) => {
   }
 
   updateUserChirpyRedStatus(userId, true).catch(err => {
-    return res.status(404).json({ message: "Failed to update user chirpy red statusnp" });
+    return res.status(404).json({ message: "Failed to update user chirpy red status" });
   });
   return res.status(204).json({ message: "Chirpy red status updated" });
 });
