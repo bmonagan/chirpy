@@ -134,4 +134,47 @@ export function corsMiddleware(req: Request, res: Response, next: NextFunction) 
 
   next();
 }
+
+type ValidationRule = {
+  field: string;
+  type: "string" | "number" | "boolean" | "array" | "object";
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: RegExp;
+};
+
+export function validateBody(rules: ValidationRule[]) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const body = req.body;
+
+    for (const rule of rules) {
+      const value = body[rule.field];
+
+      if (rule.required && (value === undefined || value === null)) {
+        return res.status(400).json({ error: `${rule.field} is required` });
+      }
+
+      if (value !== undefined && value !== null) {
+        if (typeof value !== rule.type && !(rule.type === "string" && typeof value === "string")) {
+          return res.status(400).json({ error: `${rule.field} must be a ${rule.type}` });
+        }
+
+        if (rule.type === "string") {
+          if (rule.minLength && value.length < rule.minLength) {
+            return res.status(400).json({ error: `${rule.field} must be at least ${rule.minLength} characters` });
+          }
+          if (rule.maxLength && value.length > rule.maxLength) {
+            return res.status(400).json({ error: `${rule.field} must be at most ${rule.maxLength} characters` });
+          }
+          if (rule.pattern && !rule.pattern.test(value)) {
+            return res.status(400).json({ error: `${rule.field} has invalid format` });
+          }
+        }
+      }
+    }
+
+    next();
+  };
+}
   
