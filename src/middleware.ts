@@ -177,4 +177,22 @@ export function validateBody(rules: ValidationRule[]) {
     next();
   };
 }
+
+export interface ApiError {
+  error: string;
+  message?: string;
+  statusCode: number;
+  timestamp: string;
+  path?: string;
+}
+
+export function errorResponse(statusCode: number, error: string, message?: string, path?: string): ApiError {
+  return {
+    error,
+    message,
+    statusCode,
+    timestamp: new Date().toISOString(),
+    path
+  };
+}
   
