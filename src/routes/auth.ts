@@ -12,7 +12,7 @@ router.post("/login", asyncHandler(async (req, res) => {
   const password = req.body?.password;
   const expiresInSeconds = 3600;
 
-  if (typeof email !== "string" || email.length === 0) {
+  if (typeof email !== "string" || email.trim().length === 0) {
     return res.status(400).json({ message: "Email is required" });
   }
   if (typeof password !== "string" || password.trim().length === 0) {
