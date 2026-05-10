@@ -18,7 +18,7 @@ router.post("/", (req, res) => {
   if (!req.body.event) {
     return res.status(400).json({ message: "Invalid event" });
   }
-  if (req.body.event != "user.upgraded") {
+  if (req.body.event !== "user.upgraded") {
     return res.status(204).json({ message: "Event ignored" });
   }
   const userId = req.body.data?.userId;
