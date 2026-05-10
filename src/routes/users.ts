@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { asyncHandler } from "../middleware.js";
-import { requireAuth, Payload, hashPassword, validateJWT, getBearerToken } from "../auth.js";
+import { Payload, hashPassword, validateJWT, getBearerToken } from "../auth.js";
 import { chirpyConfig } from "../config.js";
 import { BadRequestError, ConflictError, UnauthorizedError } from "../error_classes.js";
 import { createUser, updateUser } from "../lib/db/queries/users.js";
