@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { asyncHandler } from "../middleware.js";
-import { hashPassword, checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken, Payload } from "../auth.js";
+import { hashPassword, checkPasswordHash, makeJWT, validateJWT, getBearerToken, makeRefreshToken } from "../auth.js";
 import { chirpyConfig } from "../config.js";
 import { getUserByEmail } from "../lib/db/queries/users.js";
 import { createRefreshToken, getUserIdFromRefreshToken, revokeRefreshToken } from "../lib/db/queries/refreshTokens.js";
